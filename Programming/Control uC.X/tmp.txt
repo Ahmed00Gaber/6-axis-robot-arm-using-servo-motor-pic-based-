@@ -1,0 +1,73 @@
+int Norder[axes];
+
+
+void swap(int* xp, int* yp)
+{
+    int temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+void selectionSort(int arr[], int n, int order[])
+{
+    int i, j, min_idx;
+ 
+    // One by one move boundary of unsorted subarray
+    for (i = 0; i < n - 1; i++) {
+ 
+        // Find the minimum element in unsorted array
+        min_idx = i;
+        for (j = i + 1; j < n; j++)
+            if (arr[j] < arr[min_idx])
+                min_idx = j;
+ 
+        // Swap the found minimum element
+        // with the first element
+        swap(&arr[min_idx], &arr[i]);
+        swap(&order[min_idx], &order[i]);
+    }
+}
+
+void sort(int param[], int target[], int size, int order[], int Norder[])
+{
+    for ( int i = 0; i < size; i ++ )            // do for all elements in param
+    {
+        int j = i - 1;
+        while ( j >= 0 && target[j] > param[i] ) // find index of element in target which is samler or equal than param[i]
+        {
+            target[j+1] = target[j];             // shift forward element of target which is greater than param[i]
+            Norder[j+1] = Norder[j];
+            j --;
+        }
+        target[j+1] = param[i];                  // insert param[i] into target
+        Norder[j+1] = order[i];
+    }
+}
+
+void Difference(int values[], int difference [], int count) {
+    difference[0] = values[0] + 90;  // + sth is the 0.5 ms min. duty cycle 
+    for(int i = 1; i < count; i++) {
+       difference[i] = values[i] - values[i-1];
+    }
+}
+
+
+if(TMR1IF) {
+        
+        PORTB = PORTB & ~Norder[timer_counter];
+        timer_counter++;
+        if(timer_counter == axes) {
+            TMR1ON = 0;
+            timer_counter = 0;
+            sort(received, sorted, axes, order, Norder);
+            Difference(sorted, difference, axes);
+//            int order[6] = {1, 2, 4, 8, 16, 32};  // still not working but
+//            selectionSort(received, axes, order);  // but stuttering disappeared after
+//            Difference(received, difference, axes);  // i added the int order[6] here
+            SPEN = 1;
+            RCIE = 1;
+        }
+        TMR1 = 65535 - (difference[timer_counter])*93.12;
+        
+        TMR1IF = 0;
+    }
